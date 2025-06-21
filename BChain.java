@@ -1,19 +1,55 @@
 import java.util.ArrayList;
 
+import com.google.gson.GsonBuilder;
+
 public class BChain {
 
     public static ArrayList<Block> blockchain =  new ArrayList<Block>();
+    public static int difficulty = 4;
+
+    public static Boolean isChainValid(){   
+        Block current_Block;
+        Block previous_Block;
+
+        for(int i =1 ;i<blockchain.size();i++){
+            current_Block = blockchain.get(i);
+            previous_Block = blockchain.get(i-1);
+
+            if (!current_Block.hash.equals(current_Block.calculatehash())) {
+                System.out.println("Current Hash is not equal");
+                return false;
+            }
+
+            if (!previous_Block.hash.equals(previous_Block.calculatehash())) {
+                System.out.println("Previous Hash is not equal");
+                return false;                
+            }
+        }
+        return true;   
+    }
     public static void main(String[] args) {
         
         Block firstBlock = new Block("First Block", "0");
-        System.out.println("Hash for block 1: " +firstBlock.hash);
+        blockchain.add(firstBlock);
+        System.out.println("Trying to mine 1");
+        blockchain.get(0).mineBlock(difficulty);
 
         Block SecondBlock = new Block("Second Block", firstBlock.hash);
-        System.out.println("Hash for block 2: " +SecondBlock.hash);
+        blockchain.add(SecondBlock);
+        System.out.println("Trying to mine 2");
+        blockchain.get(1).mineBlock(difficulty);
 
         Block ThridBlock = new Block("Third Block", SecondBlock.hash);
-        System.out.println("Hash for block 3: " +ThridBlock.hash);
+        blockchain.add(ThridBlock);
+        System.out.println("Trying to mine 3");
+        blockchain.get(2).mineBlock(difficulty);
 
-        // String bchain_json = new GsonBuilder().setPrettyPrinting().create().toJson(blockchain);
+        System.out.println("\n Blockchain is valid: " + isChainValid());
+
+        String bchain_json = new GsonBuilder().setPrettyPrinting().create().toJson(blockchain);
+
+        String blockchain_json = new GsonBuilder().setPrettyPrinting().create().toJson(blockchain);
+        System.out.println("Block Chain: ");
+        System.out.println(bchain_json);
     }
 }
