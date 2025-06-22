@@ -1,9 +1,13 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.google.gson.GsonBuilder;
 
 import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.Security;
+import java.security.SignatureException;
+
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 
@@ -11,9 +15,11 @@ public class BChain {
 
     public static ArrayList<Block> blockchain =  new ArrayList<Block>();
     public static int difficulty = 5;
-
     public static Wallet wallet_a;
     public static Wallet wallet_b; 
+
+    public static HashMap<String,TransactionOutput> UTXOs = new HashMap<String,TransactionOutput>();
+    public static float minimumTransaction = 0.1f;
 
     public static Boolean isChainValid(){   
         Block current_Block;
@@ -35,7 +41,7 @@ public class BChain {
         }
         return true;   
     }
-    public static void main(String[] args) throws InvalidAlgorithmParameterException {
+    public static void main(String[] args) throws InvalidAlgorithmParameterException, InvalidKeyException, SignatureException {
         
         // Block firstBlock = new Block("First Block", "0");
         // blockchain.add(firstBlock);
@@ -66,9 +72,16 @@ public class BChain {
         wallet_b = new Wallet();
 
         System.out.println("Private and public keys are:");
-        System.out.println(StringUtil.getStringFromKey(wallet_a.privateKey));
-        System.out.println(StringUtil.getStringFromKey(wallet_a.publicKey));
+        System.out.println("Public Key: "+StringUtil.getStringFromKey(wallet_a.privateKey));
+        System.out.println("--------------------------------------");
+        System.out.println("Private Key: "+StringUtil.getStringFromKey(wallet_a.publicKey));
+        System.out.println("--------------------------------------");
 
-        
+        Transaction transaction = new Transaction(wallet_a.publicKey,wallet_b.publicKey,5,null);
+        transaction.generateSignature(wallet_a.privateKey);
+
+    System.out.println("Is Signature valid?");
+    System.out.println("--------------------------------------");
+    System.out.println(transaction.verifySignature());
     }
 }
