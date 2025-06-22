@@ -67,4 +67,6 @@ public class Wallet {
 
         return newTransaction;
     }
+
+    //TODO: Add func to keep a record of your Transactions
 }
