@@ -1,5 +1,6 @@
 
-import java.security.MessageDigest;
+import java.security.*;
+import java.util.Base64;
 
 public class StringUtil {
 
@@ -12,15 +13,52 @@ public class StringUtil {
 
             for (int i = 0; i < hash.length; i++) {
                 String hex = Integer.toHexString(0xff & hash[i]);
-                if (hex.length() == 1) 
+                if (hex.length() == 1) {
                     hex_string.append('0');
-                    hex_string.append(hex);
-                
+                }
+                hex_string.append(hex);
 
             }
             return hex_string.toString();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static byte[] applyECDSASig(PrivateKey privateKey, String input) throws InvalidKeyException, SignatureException {
+
+        Signature dsa;
+        byte[] output = new byte[0];
+
+        try {
+            dsa = Signature.getInstance("ECDSA", "BC");
+            dsa.initSign(privateKey);
+            byte[] strByte = input.getBytes();
+            dsa.update(strByte);
+            byte[] realSig = dsa.sign();
+            output = realSig;
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            e.printStackTrace();
+        }
+
+        return output;
+    }
+
+    public static boolean verifyECDSASig(PublicKey publicKey, String data, byte[] signature) 
+    throws InvalidKeyException, SignatureException {
+        try {
+            Signature ecdsaVerify = Signature.getInstance("ECDSA", "BC");
+            ecdsaVerify.initVerify(publicKey);
+            ecdsaVerify.update(data.getBytes());
+            return ecdsaVerify.verify(signature);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static String getStringFromKey(Key key){
+        return Base64.getEncoder().encodeToString(key.getEncoded());
     }
 }
